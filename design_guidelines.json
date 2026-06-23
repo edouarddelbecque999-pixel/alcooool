@@ -1,0 +1,168 @@
+{
+  "app_name": "SafeDrink",
+  "personality": "Fusion: 7 Dark-First Utility structure with 6 Glass / Luxe surfaces and typography",
+  "personality_one_liner": "A cinematic, premium utility that tracks real-time alcohol levels with the precision of a live sports app and the elegance of a high-end lounge.",
+  "color": {
+    "surface": "#0a0a0c",
+    "onSurface": "#ffffff",
+    "surfaceSecondary": "#151518",
+    "onSurfaceSecondary": "#a1a1aa",
+    "surfaceTertiary": "#222226",
+    "onSurfaceTertiary": "#d4d4d8",
+    "surfaceInverse": "#ffffff",
+    "onSurfaceInverse": "#000000",
+    "brand": "#d4af37",
+    "brandPrimary": "#d4af37",
+    "onBrandPrimary": "#000000",
+    "brandSecondary": "#e8ce84",
+    "onBrandSecondary": "#000000",
+    "brandTertiary": "#332a10",
+    "onBrandTertiary": "#d4af37",
+    "success": "#34c759",
+    "onSuccess": "#000000",
+    "warning": "#ff9f0a",
+    "onWarning": "#000000",
+    "error": "#ff3b30",
+    "onError": "#ffffff",
+    "border": "#27272a",
+    "borderStrong": "#3f3f46",
+    "divider": "#1f1f22"
+  },
+  "typography": {
+    "displayFontFamily": "Geist",
+    "textFontFamily": "Geist",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Generous vertical breathing room for cinematic feel. Heavy padding around the main gauge. Cards should span full width minus horizontal padding.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 8,
+    "md": 16,
+    "lg": 24,
+    "pill": 999
+  },
+  "shadow_tier": 0,
+  "navigation": "bottom_tabs",
+  "icon_set": "Ionicons",
+  "glassmorphism": {
+    "enabled": true,
+    "do's": [
+      "Use heavy frosted glass (expo-blur) behind the central BAC gauge, paired with a subtle tinted translucent backdrop.",
+      "Use glass for the bottom tab bar and sticky headers.",
+      "Use glass for the floating 'Safe Ride' (Taxi/Uber) button.",
+      "Apply gradient-to-dark scrim over background photos so foreground text remains perfectly readable."
+    ],
+    "dont's": [
+      "Do not apply glass to body text containers or simple list items.",
+      "Never allow background textures to overpower the primary metric (BAC level)."
+    ]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-glass-effect",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "Auth",
+      "purpose": "Google/Apple sign-in with a premium, cinematic entry feel.",
+      "states": {
+        "loading": "Spinner over darkened photo.",
+        "empty": "N/A",
+        "error": "Standard toast error."
+      },
+      "layout": "Full-bleed background image of dark cinematic cocktail glass. Vertical linear-gradient scrim (transparent at 0% -> 90% surface at 100%). Title and subtitle at the top. 'Sign in with Apple' and 'Sign in with Google' pill buttons (using Ionicons for logos) fixed at the bottom."
+    },
+    {
+      "name": "Dashboard",
+      "purpose": "Primary tracking screen displaying live BAC gauge, quick-add actions, and safety alerts.",
+      "states": {
+        "loading": "Centered sleek spinner.",
+        "empty": "N/A - Gauge shows 0.00.",
+        "error": "Error loading metrics with retry."
+      },
+      "layout": "Root uses a subtle dark misty glass background texture. Top 50% features a large, elegant circular BAC progress gauge (React Native Reanimated). The gauge track fills with success (green), warning (orange), or error (red) based on level. Center of gauge shows current BAC value in large display font and estimated sober time. Below gauge: a grid of 4 'Quick Add' drink buttons (Beer, Wine, Cocktail, Spirits) styled as glass or brandTertiary chips. Sticky bottom right floating action button for 'Safe Ride / Taxi'. At the bottom, a hydration reminder card."
+    },
+    {
+      "name": "History",
+      "purpose": "Timeline of drinks consumed today and recent days.",
+      "states": {
+        "loading": "Skeleton list rows.",
+        "empty": "Icon + 'No drinks logged today. Staying sober!'",
+        "error": "Failed to load timeline."
+      },
+      "layout": "Vertical timeline list. Each row has a leading icon inside a tinted surfaceTertiary container, title (Drink type), subtitle (Time & Volume), and trailing metadata (BAC impact). Generous spacing between rows."
+    },
+    {
+      "name": "Stats",
+      "purpose": "Weekly analytics on consumption, spending, and dry days.",
+      "states": {
+        "loading": "Skeleton charts.",
+        "empty": "Empty state illustration with 'Start logging to see trends'.",
+        "error": "Failed to load stats."
+      },
+      "layout": "Scrollable dashboard. Top section: Summary cards (Total drinks, Dry days, Spent) using multi-column grid. Middle section: Bar chart showing weekly consumption. Bottom section: Badges/Gamification section displayed as horizontal scroll of glass cards."
+    },
+    {
+      "name": "Coach",
+      "purpose": "AI Chat interface for personalized consumption advice and hydration.",
+      "states": {
+        "loading": "Connecting spinner.",
+        "empty": "Welcome message bubble from Coach.",
+        "error": "Failed to send message."
+      },
+      "layout": "Standard chat interface. Messages from AI use surfaceSecondary with subtle glass. User messages use brandTertiary. Input field fixed above the keyboard."
+    },
+    {
+      "name": "Profile",
+      "purpose": "Manage physical attributes (essential for BAC calculation) and settings.",
+      "states": {
+        "loading": "Skeleton form.",
+        "empty": "N/A",
+        "error": "Failed to save profile."
+      },
+      "layout": "List of settings items. Top header has user initials in a brandPrimary circle. Form fields for Weight, Height, Sex, Age (used for BAC formula). App settings (Theme, Notifications)."
+    }
+  ],
+  "images": {
+    "auth_background": {
+      "url": "https://images.pexels.com/photos/7594152/pexels-photo-7594152.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "alt": "Elegant flute of sparkling red cocktail against a dark cinematic background"
+    },
+    "dashboard_texture": {
+      "url": "https://images.pexels.com/photos/9807251/pexels-photo-9807251.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "alt": "Water droplets on a misty glass window with soft dark lighting"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Strictly follow the color palette. Do NOT use any blues (no navy, no indigo, no sky blue) anywhere in the app.",
+    "Implement the BAC gauge as a centerpiece on the Home/Dashboard using react-native-reanimated for smooth gauge filling. Use the status colors (success=green, warning=orange, error=red) for the gauge track depending on BAC level.",
+    "Since BAC numbers are critical live data, ensure the numbers use a monospace or tabular lining font variant if possible, or just large legible text.",
+    "Apply 'expo-blur' (glass effect) heavily on the Dashboard over the background texture image (dashboard_texture). Ensure foreground text readability using gradient scrims.",
+    "For the 'Safe Ride' buttons (Taxi/Uber/Friend), build a sticky Floating Action Button or bottom sheet using gorhom/bottom-sheet.",
+    "Use Ionicons for Apple and Google icons in the Auth screen, styled as pill buttons. Do NOT use raw SVGs for these if vector-icons can provide them perfectly.",
+    "The UI should feel premium, iOS 26 native, dark, and elegant. Avoid harsh borders or dense Material design shadows.",
+    "Wire subtle haptics to the Quick Add drink buttons and the gauge interactions."
+  ]
+}
