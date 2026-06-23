@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0c">
+  <title>SafeDrink</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --surface: #0a0a0c;
+      --surface-secondary: #151518;
+      --surface-tertiary: #222226;
+      --on-surface: #ffffff;
+      --on-surface-secondary: #a1a1aa;
+      --on-surface-tertiary: #d4d4d8;
+      --brand: #d4af37;
+      --brand-secondary: #e8ce84;
+      --brand-tertiary: #332a10;
+      --on-brand: #000000;
+      --on-brand-tertiary: #d4af37;
+      --success: #34c759;
+      --warning: #ff9f0a;
+      --error: #ff3b30;
+      --border: #27272a;
+      --divider: #1f1f22;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--surface);
+      color: var(--on-surface);
+    }
+
+    .app {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .screen {
+      flex: 1;
+      overflow: auto;
+      padding-bottom: 80px;
+    }
+
+    .glass {
+      background: rgba(21, 21, 24, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      border-top: 1px solid var(--border);
+    }
+
+    .tab-bar-inner {
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 16px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 12px;
+      background: none;
+      border: none;
+      color: var(--on-surface-secondary);
+      cursor: pointer;
+      border-radius: 12px;
+      transition: color 0.2s;
+    }
+
+    .tab.active {
+      color: var(--brand);
+    }
+
+    .tab:hover {
+      color: var(--on-surface);
+    }
+
+    .tab svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .tab span {
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Dashboard */
+    .dashboard-bg {
+      position: fixed;
+      inset: 0;
+      background-image: url('https://images.pexels.com/photos/9807251/pexels-photo-9807251.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.3;
+      z-index: -1;
+    }
+
+    .gradient-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(10,10,12,0.8), var(--surface));
+      z-index: -1;
+    }
+
+    .gauge-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px;
+      padding-top: 48px;
+    }
+
+    .gauge {
+      position: relative;
+      width: 220px;
+      height: 220px;
+    }
+
+    .gauge svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .gauge-bg {
+      fill: none;
+      stroke: var(--surface-tertiary);
+      stroke-width: 10;
+    }
+
+    .gauge-progress {
+      fill: none;
+      stroke-width: 10;
+      stroke-linecap: round;
+      transition: stroke-dasharray 0.5s ease-out, stroke 0.3s;
+    }
+
+    .gauge-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gauge-value {
+      font-size: 48px;
+      font-weight: 700;
+    }
+
+    .gauge-unit {
+      font-size: 14px;
+      color: var(--on-surface-secondary);
+      margin-top: 2px;
+    }
+
+    .level-badge {
+      margin-top: 16px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .level-safe { background: rgba(52, 199, 89, 0.2); color: var(--success); }
+    .level-warning { background: rgba(255, 159, 10, 0.2); color: var(--warning); }
+    .level-danger { background: rgba(255, 59, 48, 0.2); color: var(--error); }
+
+    .sober-time {
+      margin-top: 16px;
+      text-align: center;
+    }
+
+    .sober-label {
+      font-size: 14px;
+      color: var(--on-surface-secondary);
+    }
+
+    .sober-value {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--on-surface);
+      margin-top: 4px;
+    }
+
+    .quick-add-section {
+      padding: 24px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      color: var(--on-surface-secondary);
+      margin-bottom: 12px;
+    }
+
+    .quick-add-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .quick-add-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 8px;
+      background: var(--brand-tertiary);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.15s, background 0.2s;
+    }
+
+    .quick-add-btn:active {
+      transform: scale(0.95);
+    }
+
+    .quick-add-btn:hover {
+      background: rgba(212, 175, 55, 0.3);
+    }
+
+    .quick-add-btn svg {
+      width: 24px;
+      height: 24px;
+      color: var(--on-brand-tertiary);
+    }
+
+    .quick-add-btn span {
+      font-size: 12px;
+      color: var(--on-brand-tertiary);
+      font-weight: 500;
+    }
+
+    .hydration-card {
+      margin: 8px 24px;
+      padding: 16px;
+      background: rgba(21, 21, 24, 0.7);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hydration-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(52, 199, 89, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hydration-icon svg {
+      width: 20px;
+      height: 20px;
+      color: var(--success);
+    }
+
+    .safe-ride-fab {
+      position: fixed;
+      bottom: 88px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--brand);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      z-index: 40;
+      transition: background 0.2s;
+    }
+
+    .safe-ride-fab:hover {
+      background: var(--brand-secondary);
+    }
+
+    .safe-ride-fab svg {
+      width: 24px;
+      height: 24px;
+      color: var(--on-brand);
+    }
+
+    .disclaimer {
+      padding: 16px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--on-surface-secondary);
+    }
+
+    /* History */
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+      padding: 24px;
+      padding-bottom: 16px;
+    }
+
+    .date-group-label {
+      font-size: 14px;
+      color: var(--on-surface-secondary);
+      padding: 0 24px;
+      margin-bottom: 12px;
+      text-transform: capitalize;
+    }
+
+    .drink-list {
+      padding: 0 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .drink-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: var(--surface-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .drink-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      background: var(--surface-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .drink-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .drink-info {
+      flex: 1;
+    }
+
+    .drink-name {
+      font-weight: 500;
+    }
+
+    .drink-details {
+      font-size: 13px;
+      color: var(--on-surface-secondary);
+      margin-top: 2px;
+    }
+
+    .drink-time {
+      font-size: 13px;
+      color: var(--on-surface-secondary);
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px;
+      text-align: center;
+    }
+
+    .empty-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--surface-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .empty-icon svg {
+      width: 40px;
+      height: 40px;
+      color: var(--on-surface-secondary);
+    }
+
+    .empty-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .empty-text {
+      color: var(--on-surface-secondary);
+    }
+
+    /* Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 0 24px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      padding: 16px;
+      background: var(--surface-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .stat-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .stat-header svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--on-surface-secondary);
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .chart-container {
+      padding: 0 24px;
+      margin-bottom: 24px;
+    }
+
+    .chart-card {
+      padding: 16px;
+      background: var(--surface-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      height: 120px;
+      padding-top: 16px;
+    }
+
+    .bar-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .bar {
+      width: 24px;
+      background: var(--brand);
+      border-radius: 4px 4px 0 0;
+      transition: height 0.3s;
+    }
+
+    .bar-label {
+      font-size: 11px;
+      color: var(--on-surface-secondary);
+    }
+
+    .badges-section {
+      padding: 0 24px;
+    }
+
+    .badges-scroll {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 16px;
+    }
+
+    .badge-card {
+      flex-shrink: 0;
+      width: 90px;
+      padding: 16px;
+      background: var(--surface-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .badge-card.unlocked {
+      background: var(--brand-tertiary);
+      border-color: rgba(212, 175, 55, 0.3);
+    }
+
+    .badge-emoji {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .badge-name {
+      font-size: 11px;
+    }
+
+    /* Coach */
+    .chat-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--brand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chat-avatar svg {
+      width: 20px;
+      height: 20px;
+      color: var(--on-brand);
+    }
+
+    .chat-name {
+      font-weight: 600;
+    }
+
+    .chat-status {
+      font-size: 12px;
+      color: var(--success);
+    }
+
+    .messages-container {
+      flex: 1;
+      overflow: auto;
+      padding: 16px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .message {
+      display: flex;
+      gap: 12px;
+      max-width: 85%;
+    }
+
+    .message.user {
+      flex-direction: row-reverse;
+      margin-left: auto;
+    }
+
+    .message-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--brand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .message.user .message-avatar {
+      background: var(--brand-tertiary);
+    }
+
+    .message-avatar svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .message-bubble {
+      padding: 12px 16px;
+      border-radius: 16px;
+      white-space: pre-wrap;
+      line-height: 1.5;
+    }
+
+    .message.assistant .message-bubble {
+      background: var(--surface-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .message.user .message-bubble {
+      background: var(--brand-tertiary);
+      color: var(--on-brand-tertiary);
+    }
+
+    .chat-input-container {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .chat-input-wrapper {
+      flex: 1;
+      background: var(--surface-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+    }
+
+    .chat-input {
+      width: 100%;
+      background: none;
+      border: none;
+      color: var(--on-surface);
+      font-size: 14px;
+      outline: none;
+      resize: none;
+      font-family: inherit;
+    }
+
+    .chat-input::placeholder {
+      color: var(--on-surface-secondary);
+    }
+
+    .send-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--brand);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .send-btn:hover {
+      background: var(--brand-secondary);
+    }
+
+    .send-btn svg {
+      width: 20px;
+      height: 20px;
+      color: var(--on-brand);
+    }
+
+    /* Profile */
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 24px;
+      background: var(--surface-secondary);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin: 0 24px 24px;
+    }
+
+    .profile-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--brand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--on-brand);
+    }
+
+    .profile-level {
+      font-weight: 600;
+    }
+
+    .profile-xp {
+      font-size: 13px;
+      color: var(--on-surface-secondary);
+    }
+
+    .settings-section {
+      padding: 0 24px;
+      margin-bottom: 24px;
+    }
+
+    .settings-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .settings-desc {
+      font-size: 13px;
+      color: var(--on-surface-secondary);
+      margin-bottom: 16px;
+    }
+
+    .setting-item {
+      padding: 16px;
+      background: var(--surface-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+
+    .setting-label {
+      font-size: 13px;
+      color: var(--on-surface-secondary);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .setting-select {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--surface-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--on-surface);
+      font-size: 14px;
+      cursor: pointer;
+      appearance: none;
+    }
+
+    .setting-select:focus {
+      outline: none;
+      border-color: var(--brand);
+    }
+
+    .sex-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .sex-btn {
+      flex: 1;
+      padding: 12px;
+      background: var(--surface-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--on-surface);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .sex-btn.active {
+      background: var(--brand-tertiary);
+      border-color: var(--brand);
+      color: var(--on-brand-tertiary);
+    }
+
+    .action-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: var(--surface-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .action-item:hover {
+      background: var(--surface-tertiary);
+    }
+
+    .action-item svg {
+      width: 20px;
+      height: 20px;
+      color: var(--on-surface-secondary);
+    }
+
+    .action-item span {
+      flex: 1;
+    }
+
+    .action-item.danger {
+      border-color: rgba(255, 59, 48, 0.3);
+      color: var(--error);
+    }
+
+    .action-item.danger svg {
+      color: var(--error);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 24px;
+      background: var(--surface-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 14px;
+      z-index: 100;
+      animation: fadeInOut 2s ease-in-out;
+    }
+
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0; transform: translateX(-50%) translateY(10px); }
+      20%, 80% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 8px;
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--on-surface-secondary);
+      animation: bounce 1.4s ease-in-out infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-8px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Dashboard Screen -->
+    <div id="dashboard-screen" class="screen">
+      <div class="dashboard-bg"></div>
+      <div class="gradient-overlay"></div>
+
+      <div class="gauge-container">
+        <div class="gauge">
+          <svg viewBox="0 0 100 100">
+            <circle class="gauge-bg" cx="50" cy="50" r="40"/>
+            <circle id="gauge-progress" class="gauge-progress" cx="50" cy="50" r="40"
+                    stroke="var(--success)" stroke-dasharray="0 251"/>
+          </svg>
+          <div class="gauge-text">
+            <span id="bac-value" class="gauge-value" style="color: var(--success)">0.00</span>
+            <span class="gauge-unit">g/L</span>
+          </div>
+        </div>
+
+        <div id="level-badge" class="level-badge level-safe">OK pour conduire</div>
+
+        <div id="sober-time" class="sober-time hidden">
+          <p class="sober-label">Repos dans</p>
+          <p id="sober-value" class="sober-value">0h 0m</p>
+        </div>
+      </div>
+
+      <div class="quick-add-section">
+        <p class="section-title">Ajouter rapidement</p>
+        <div class="quick-add-grid">
+          <button class="quick-add-btn" onclick="addDrink('beer', 'Biere', 500, 5)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 11h1a3 3 0 0 1 0 6h-1"/>
+              <path d="M9 12v6"/>
+              <path d="M13 12v6"/>
+              <path d="M5 11h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2z"/>
+            </svg>
+            <span>Biere</span>
+          </button>
+          <button class="quick-add-btn" onclick="addDrink('wine', 'Vin', 150, 12)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M8 22h8"/>
+              <path d="M7 10h10"/>
+              <path d="M12 10v12"/>
+              <path d="M8 2a2 2 0 0 0-2 2v2a4 4 0 0 0 4 4h4a4 4 0 0 0 4-4V4a2 2 0 0 0-2-2H8z"/>
+            </svg>
+            <span>Vin</span>
+          </button>
+          <button class="quick-add-btn" onclick="addDrink('cocktail', 'Cocktail', 200, 15)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+              <path d="M2 8h16v2a6 6 0 0 1-6 6H8a6 6 0 0 1-6-6V8z"/>
+              <line x1="12" y1="16" x2="12" y2="22"/>
+              <line x1="8" y1="22" x2="16" y2="22"/>
+            </svg>
+            <span>Cocktail</span>
+          </button>
+          <button class="quick-add-btn" onclick="addDrink('spirit', 'Spiritueux', 50, 40)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 22h14"/>
+              <path d="M5 2h14"/>
+              <path d="M17 22V2"/>
+              <path d="M7 22V2"/>
+            </svg>
+            <span>Spiritueux</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="hydration-card">
+        <div class="hydration-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+          </svg>
+        </div>
+        <div>
+          <p style="font-weight: 500;">Hydratation</p>
+          <p style="font-size: 13px; color: var(--on-surface-secondary);">Pensez a boire de l'eau!</p>
+        </div>
+      </div>
+
+      <button class="safe-ride-fab" onclick="showToast('Recherche de transport en cours...')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8c-.1.2-.1.5-.1.7v3.6c0 .6.4 1 1 1h2"/>
+          <circle cx="7" cy="17" r="2"/>
+          <circle cx="17" cy="17" r="2"/>
+        </svg>
+      </button>
+
+      <p class="disclaimer">Estimations indicatives. Ne remplacent jamais un ethylotest homologue.</p>
+    </div>
+
+    <!-- History Screen -->
+    <div id="history-screen" class="screen hidden">
+      <h1 class="page-title">Historique</h1>
+      <div id="history-content">
+        <div class="empty-state">
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15.5 2H8.6c-.4 0-.8.2-1.1.5l-5 5c-.3.3-.5.7-.5 1.1v10.8c0 1 .8 1.8 1.8 1.8h11.7c1 0 1.8-.8 1.8-1.8V3.8c0-1-.8-1.8-1.8-1.8z"/>
+              <path d="M3 8.5h5.5V3"/>
+            </svg>
+          </div>
+          <h2 class="empty-title">Aucune boisson</h2>
+          <p class="empty-text">Vous n'avez pas encore enregistre de boissons.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Screen -->
+    <div id="stats-screen" class="screen hidden">
+      <h1 class="page-title">Statistiques</h1>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-header">
+            <svg style="color: var(--brand)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5.5 16h13"/>
+              <path d="M5.5 8h13"/>
+              <path d="M12 2v4"/>
+              <path d="M12 20v-4"/>
+            </svg>
+            <span class="stat-label">Aujourd'hui</span>
+          </div>
+          <p id="stat-today" class="stat-value">0</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <svg style="color: var(--success)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span class="stat-label">Total boissons</span>
+          </div>
+          <p id="stat-total" class="stat-value">0</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <svg style="color: #22d3ee" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+            </svg>
+            <span class="stat-label">Verres d'eau</span>
+          </div>
+          <p id="stat-water" class="stat-value">0</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <svg style="color: var(--warning)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="8" r="7"/>
+              <polyline points="8.21 13.89 8.21 11.55"/>
+              <polyline points="10.74 13.89 10.74 8.72"/>
+              <polyline points="13.26 13.89 13.26 6.82"/>
+              <polyline points="15.79 13.89 15.79 10"/>
+            </svg>
+            <span class="stat-label">Niveau</span>
+          </div>
+          <p id="stat-level" class="stat-value">1</p>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 12px; padding: 0;">Cette semaine</h2>
+        <div class="chart-card">
+          <div class="bar-chart">
+            <div class="bar-column">
+              <div id="bar-0" class="bar" style="height: 0px;"></div>
+              <span class="bar-label">Lun</span>
+            </div>
+            <div class="bar-column">
+              <div id="bar-1" class="bar" style="height: 0px;"></div>
+              <span class="bar-label">Mar</span>
+            </div>
+            <div class="bar-column">
+              <div id="bar-2" class="bar" style="height: 0px;"></div>
+              <span class="bar-label">Mer</span>
+            </div>
+            <div class="bar-column">
+              <div id="bar-3" class="bar" style="height: 0px;"></div>
+              <span class="bar-label">Jeu</span>
+            </div>
+            <div class="bar-column">
+              <div id="bar-4" class="bar" style="height: 0px;"></div>
+              <span class="bar-label">Ven</span>
+            </div>
+            <div class="bar-column">
+              <div id="bar-5" class="bar" style="height: 0px;"></div>
+              <span class="bar-label">Sam</span>
+            </div>
+            <div class="bar-column">
+              <div id="bar-6" class="bar" style="height: 0px;"></div>
+              <span class="bar-label">Dim</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="badges-section">
+        <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 12px;">Badges</h2>
+        <div class="badges-scroll">
+          <div class="badge-card">
+            <div class="badge-emoji">🍺</div>
+            <span class="badge-name">Premier verre</span>
+          </div>
+          <div class="badge-card">
+            <div class="badge-emoji">💧</div>
+            <span class="badge-name">Hydratation</span>
+          </div>
+          <div class="badge-card">
+            <div class="badge-emoji">🎯</div>
+            <span class="badge-name">Moderation</span>
+          </div>
+          <div class="badge-card">
+            <div class="badge-emoji">🏆</div>
+            <span class="badge-name">Expert</span>
+          </div>
+          <div class="badge-card">
+            <div class="badge-emoji">⭐</div>
+            <span class="badge-name">Legende</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coach Screen -->
+    <div id="coach-screen" class="screen hidden">
+      <div class="chat-header">
+        <div class="chat-avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 8V4H8"/>
+            <rect x="2" y="8" width="20" height="12" rx="2"/>
+            <path d="M6 12h2"/>
+            <path d="M16 12h2"/>
+          </svg>
+        </div>
+        <div>
+          <p class="chat-name">Coach SafeDrink</p>
+          <p class="chat-status">En ligne</p>
+        </div>
+      </div>
+
+      <div id="messages" class="messages-container">
+        <div class="message assistant">
+          <div class="message-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--on-brand)">
+              <path d="M12 8V4H8"/>
+              <rect x="2" y="8" width="20" height="12" rx="2"/>
+            </svg>
+          </div>
+          <div class="message-bubble">Bonjour! Je suis votre coach SafeDrink. Je suis la pour vous aider a suivre votre consommation. N'hesitez pas a me poser vos questions!</div>
+        </div>
+      </div>
+
+      <div class="chat-input-container">
+        <div class="chat-input-wrapper">
+          <textarea id="chat-input" class="chat-input" placeholder="Ecrivez votre message..." rows="1"></textarea>
+        </div>
+        <button class="send-btn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Profile Screen -->
+    <div id="profile-screen" class="screen hidden">
+      <h1 class="page-title">Profil</h1>
+
+      <div class="profile-header">
+        <div id="profile-avatar" class="profile-avatar">S</div>
+        <div>
+          <p class="profile-level">Niveau <span id="profile-level-num">1</span></p>
+          <p class="profile-xp"><span id="profile-xp">0</span> XP total</p>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h2 class="settings-title">Attributs physiques</h2>
+        <p class="settings-desc">Ces informations sont necessaires pour calculer votre taux d'alcoolemie.</p>
+
+        <div class="setting-item">
+          <label class="setting-label">Poids</label>
+          <select id="weight-select" class="setting-select" onchange="updateProfile()">
+            <option value="">Selectionnez</option>
+          </select>
+        </div>
+
+        <div class="setting-item">
+          <label class="setting-label">Sexe</label>
+          <div class="sex-buttons">
+            <button id="sex-male" class="sex-btn" onclick="setSex('male')">Homme</button>
+            <button id="sex-female" class="sex-btn" onclick="setSex('female')">Femme</button>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <label class="setting-label">Age</label>
+          <select id="age-select" class="setting-select" onchange="updateProfile()">
+            <option value="">Selectionnez</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h2 class="settings-title">Compte</h2>
+
+        <button class="action-item" onclick="showToast('Deconnexion...')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          <span>Deconnexion</span>
+        </button>
+
+        <button class="action-item danger">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+          <span>Supprimer mon compte</span>
+        </button>
+      </div>
+
+      <p class="disclaimer">Estimations indicatives. Ne remplacent jamais un ethylotest homologue.</p>
+    </div>
+
+    <!-- Tab Bar -->
+    <nav class="tab-bar glass">
+      <div class="tab-bar-inner">
+        <button class="tab active" data-screen="dashboard" onclick="showScreen('dashboard')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="9"/>
+            <rect x="14" y="3" width="7" height="5"/>
+            <rect x="14" y="12" width="7" height="9"/>
+            <rect x="3" y="16" width="7" height="5"/>
+          </svg>
+          <span>Tableau</span>
+        </button>
+        <button class="tab" data-screen="history" onclick="showScreen('history')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <span>Historique</span>
+        </button>
+        <button class="tab" data-screen="stats" onclick="showScreen('stats')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="20" x2="18" y2="10"/>
+            <line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+          <span>Stats</span>
+        </button>
+        <button class="tab" data-screen="coach" onclick="showScreen('coach')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span>Coach</span>
+        </button>
+        <button class="tab" data-screen="profile" onclick="showScreen('profile')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span>Profil</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <script>
+    // App State
+    let drinks = JSON.parse(localStorage.getItem('safedrink_drinks') || '[]');
+    let profile = JSON.parse(localStorage.getItem('safedrink_profile') || '{"weight_kg": 70, "sex": "male", "level": 1, "xp": 0}');
+
+    // Initialize
+    function init() {
+      populateSelects();
+      updateUI();
+    }
+
+    function populateSelects() {
+      const weightSelect = document.getElementById('weight-select');
+      const ageSelect = document.getElementById('age-select');
+
+      for (let kg = 30; kg <= 150; kg++) {
+        const opt = document.createElement('option');
+        opt.value = kg;
+        opt.textContent = kg + ' kg';
+        if (kg === profile.weight_kg) opt.selected = true;
+        weightSelect.appendChild(opt);
+      }
+
+      for (let age = 18; age <= 100; age++) {
+        const opt = document.createElement('option');
+        opt.value = age;
+        opt.textContent = age + ' ans';
+        if (age === profile.age) opt.selected = true;
+        ageSelect.appendChild(opt);
+      }
+
+      updateSexButtons();
+    }
+
+    // Navigation
+    function showScreen(screen) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+      document.getElementById(screen + '-screen').classList.remove('hidden');
+
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelector(`.tab[data-screen="${screen}"]`).classList.add('active');
+
+      if (screen === 'history') updateHistory();
+      if (screen === 'stats') updateStats();
+    }
+
+    // Drink Management
+    function addDrink(type, name, volume, alcohol) {
+      const xpMap = { spirit: 20, cocktail: 15, wine: 12, beer: 10, water: 5 };
+      const drink = {
+        id: Date.now(),
+        type,
+        name,
+        volume_ml: volume,
+        alcohol_pct: alcohol,
+        xp: xpMap[type],
+        created_at: new Date().toISOString()
+      };
+
+      drinks.unshift(drink);
+      profile.xp += drink.xp;
+      profile.level = Math.floor(profile.xp / 100) + 1;
+
+      saveData();
+      updateUI();
+      showToast(`${name} ajoute! +${drink.xp} XP`);
+    }
+
+    function updateUI() {
+      updateGauge();
+      updateProfileDisplay();
+      updateStats();
+    }
+
+    function updateGauge() {
+      const bac = calculateBAC();
+      const gaugeProgress = document.getElementById('gauge-progress');
+      const bacValue = document.getElementById('bac-value');
+      const levelBadge = document.getElementById('level-badge');
+      const soberTime = document.getElementById('sober-time');
+      const soberValue = document.getElementById('sober-value');
+
+      const maxDash = 251; // circumference
+      const dashValue = Math.min(bac / 2, 1) * maxDash;
+
+      gaugeProgress.setAttribute('stroke-dasharray', `${dashValue} ${maxDash}`);
+      bacValue.textContent = bac.toFixed(2);
+
+      let level, color, text;
+      if (bac < 0.2) {
+        level = 'safe';
+        color = 'var(--success)';
+        text = 'OK pour conduire';
+      } else if (bac < 0.5) {
+        level = 'warning';
+        color = 'var(--warning)';
+        text = 'Attention';
+      } else {
+        level = 'danger';
+        color = 'var(--error)';
+        text = 'Interdit de conduire';
+      }
+
+      gaugeProgress.setAttribute('stroke', color);
+      bacValue.style.color = color;
+      levelBadge.className = 'level-badge level-' + level;
+      levelBadge.textContent = text;
+
+      if (bac > 0) {
+        soberTime.classList.remove('hidden');
+        const hours = bac / 0.15;
+        soberValue.textContent = `${Math.floor(hours)}h ${Math.round((hours % 1) * 60)}m`;
+      } else {
+        soberTime.classList.add('hidden');
+      }
+    }
+
+    function calculateBAC() {
+      const now = Date.now();
+      let totalAlcohol = 0;
+
+      drinks.filter(d => d.type !== 'water').forEach(drink => {
+        const hoursSince = (now - new Date(drink.created_at).getTime()) / (1000 * 60 * 60);
+        if (hoursSince < 24) {
+          const alcoholGrams = (drink.volume_ml * drink.alcohol_pct / 100) * 0.789;
+          const decay = 0.15 * hoursSince;
+          totalAlcohol += Math.max(0, alcoholGrams - decay * (profile.weight_kg || 70) * (profile.sex === 'male' ? 0.68 : 0.55) * 0.1);
+        }
+      });
+
+      const r = profile.sex === 'male' ? 0.68 : 0.55;
+      const bac = (totalAlcohol / ((profile.weight_kg || 70) * 1000 * r)) * 100;
+      return Math.max(0, bac);
+    }
+
+    function updateHistory() {
+      const container = document.getElementById('history-content');
+
+      if (drinks.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15.5 2H8.6c-.4 0-.8.2-1.1.5l-5 5c-.3.3-.5.7-.5 1.1v10.8c0 1 .8 1.8 1.8 1.8h11.7c1 0 1.8-.8 1.8-1.8V3.8c0-1-.8-1.8-1.8-1.8z"/>
+              </svg>
+            </div>
+            <h2 class="empty-title">Aucune boisson</h2>
+            <p class="empty-text">Vous n'avez pas encore enregistre de boissons.</p>
+          </div>`;
+        return;
+      }
+
+      const grouped = groupByDate(drinks);
+      let html = '';
+
+      Object.entries(grouped).forEach(([date, dateDrinks]) => {
+        html += `<p class="date-group-label">${formatDate(date)}</p>`;
+        html += '<div class="drink-list">';
+
+        dateDrinks.forEach(drink => {
+          html += `
+            <div class="drink-item">
+              <div class="drink-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 11h1a3 3 0 0 1 0 6h-1"/>
+                  <path d="M9 12v6"/>
+                  <path d="M13 12v6"/>
+                  <path d="M5 11h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2z"/>
+                </svg>
+              </div>
+              <div class="drink-info">
+                <p class="drink-name">${drink.name}</p>
+                <p class="drink-details">${drink.volume_ml}ml - ${drink.alcohol_pct}% - ${drink.xp} XP</p>
+              </div>
+              <p class="drink-time">${formatTimeAgo(drink.created_at)}</p>
+            </div>`;
+        });
+
+        html += '</div>';
+      });
+
+      container.innerHTML = html;
+    }
+
+    function updateStats() {
+      const today = new Date().toDateString();
+      const todayDrinks = drinks.filter(d => new Date(d.created_at).toDateString() === today && d.type !== 'water').length;
+      const totalDrinks = drinks.filter(d => d.type !== 'water').length;
+      const waterCount = drinks.filter(d => d.type === 'water').length;
+
+      document.getElementById('stat-today').textContent = todayDrinks;
+      document.getElementById('stat-total').textContent = totalDrinks;
+      document.getElementById('stat-water').textContent = waterCount;
+      document.getElementById('stat-level').textContent = profile.level;
+
+      // Update bar chart
+      const weekData = getWeekData();
+      const maxDrinks = Math.max(...weekData.map(d => d.drinks), 1);
+
+      weekData.forEach((day, i) => {
+        const bar = document.getElementById(`bar-${i}`);
+        bar.style.height = (day.drinks / maxDrinks * 80) + 'px';
+      });
+
+      // Update badges
+      const badgeCards = document.querySelectorAll('.badge-card');
+      const badgeThresholds = [1, 5, 10, 50, 100];
+      badgeThresholds.forEach((threshold, i) => {
+        if (totalDrinks >= threshold) {
+          badgeCards[i].classList.add('unlocked');
+        }
+      });
+    }
+
+    function updateProfile() {
+      profile.weight_kg = parseInt(document.getElementById('weight-select').value) || 70;
+      profile.age = parseInt(document.getElementById('age-select').value) || null;
+      saveData();
+      updateGauge();
+    }
+
+    function setSex(sex) {
+      profile.sex = sex;
+      updateSexButtons();
+      saveData();
+      updateGauge();
+    }
+
+    function updateSexButtons() {
+      document.getElementById('sex-male').classList.toggle('active', profile.sex === 'male');
+      document.getElementById('sex-female').classList.toggle('active', profile.sex === 'female');
+    }
+
+    function updateProfileDisplay() {
+      document.getElementById('profile-level-num').textContent = profile.level;
+      document.getElementById('profile-xp').textContent = profile.xp;
+    }
+
+    // Chat
+    function sendMessage() {
+      const input = document.getElementById('chat-input');
+      const message = input.value.trim();
+      if (!message) return;
+
+      addMessageToChat('user', message);
+      input.value = '';
+
+      setTimeout(() => {
+        const responses = {
+          default: "Je comprends. N'oubliez pas de boire de l'eau entre chaque verre d'alcool. L'hydratation est essentielle!",
+          conseil: "Voici quelques conseils:\n1. Alternez entre boissons alcoolisees et eau\n2. Ne buvez jamais a jeun\n3. Limitez-vous a 2 verres par occasion\n4. Savourez votre boisson lentement",
+          aide: "Je peux vous aider avec:\n- Calculer votre taux d'alcoolemie\n- Conseils de moderation\n- Rappels d'hydratation\n- Alternatives sans alcool"
+        };
+
+        let response = responses.default;
+        const lowerMsg = message.toLowerCase();
+        if (lowerMsg.includes('conseil') || lowerMsg.includes('astuce')) {
+          response = responses.conseil;
+        } else if (lowerMsg.includes('aide') || lowerMsg.includes('pouvez')) {
+          response = responses.aide;
+        }
+
+        addMessageToChat('assistant', response);
+      }, 1000);
+    }
+
+    function addMessageToChat(role, content) {
+      const messagesContainer = document.getElementById('messages');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${role}`;
+
+      const avatarIcon = role === 'assistant'
+        ? '<path d="M12 8V4H8"/><rect x="2" y="8" width="20" height="12" rx="2"/>'
+        : '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>';
+
+      messageDiv.innerHTML = `
+        <div class="message-avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: ${role === 'assistant' ? 'var(--on-brand)' : 'var(--on-brand-tertiary)'}">
+            ${avatarIcon}
+          </svg>
+        </div>
+        <div class="message-bubble">${content}</div>`;
+
+      messagesContainer.appendChild(messageDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Utilities
+    function groupByDate(drinks) {
+      return drinks.reduce((acc, drink) => {
+        const date = new Date(drink.created_at).toDateString();
+        if (!acc[date]) acc[date] = [];
+        acc[date].push(drink);
+        return acc;
+      }, {});
+    }
+
+    function formatDate(dateStr) {
+      return new Date(dateStr).toLocaleDateString('fr-FR', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long'
+      });
+    }
+
+    function formatTimeAgo(dateStr) {
+      const diff = Date.now() - new Date(dateStr).getTime();
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+
+      if (hours < 1) return "Il y a moins d'1h";
+      if (hours < 24) return `Il y a ${hours}h`;
+      return new Date(dateStr).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+    }
+
+    function getWeekData() {
+      const today = new Date();
+      const data = [];
+
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        const dayStr = date.toDateString();
+        const dayDrinks = drinks.filter(d => new Date(d.created_at).toDateString() === dayStr && d.type !== 'water').length;
+        data.push({ drinks: dayDrinks, day: date.getDay() });
+      }
+
+      return data;
+    }
+
+    function saveData() {
+      localStorage.setItem('safedrink_drinks', JSON.stringify(drinks));
+      localStorage.setItem('safedrink_profile', JSON.stringify(profile));
+    }
+
+    function showToast(message) {
+      const existing = document.querySelector('.toast');
+      if (existing) existing.remove();
+
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      setTimeout(() => toast.remove(), 2000);
+    }
+
+    // Handle Enter key in chat
+    document.getElementById('chat-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // Initialize app
+    init();
+  </script>
+</body>
+</html>
